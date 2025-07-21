@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangla Sentiment Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .input-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .output-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-header {
+            background: #4a5568;
+            color: white;
+            padding: 15px 20px;
+            margin: -40px -40px 30px -40px;
+            border-radius: 20px 20px 0 0;
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-icon {
+            font-size: 18px;
+        }
+
+        .close-icon {
+            color: #ff6b6b;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .text-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .analysis-result {
+            display: none;
+        }
+
+        .analysis-result.show {
+            display: block;
+        }
+
+        .sentiment-circles {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            gap: 20px;
+        }
+
+        .sentiment-circle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .circle.positive {
+            background: conic-gradient(#10b981 var(--percentage, 0%), #e5e7eb var(--percentage, 0%));
+        }
+
+        .circle.neutral {
+            background: conic-gradient(#f59e0b var(--percentage, 0%), #e5e7eb var(--percentage, 0%));
+        }
+
+        .circle.negative {
+            background: conic-gradient(#ef4444 var(--percentage, 0%), #e5e7eb var(--percentage, 0%));
+        }
+
+        .circle-inner {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .sentiment-label {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .result-summary {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .prediction-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .confidence-text {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .note {
+            background: #eff6ff;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .input-section,
+            .output-section {
+                padding: 20px;
+            }
+            
+            .section-header {
+                margin: -20px -20px 20px -20px;
+                padding: 12px 15px;
+                font-size: 16px;
+            }
+            
+            .sentiment-circles {
+                gap: 10px;
+            }
+            
+            .circle {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .circle-inner {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-bars menu-icon"></i>
+                    <span>Bangla Sentiment Analysis</span>
+                </div>
+            </div>
+            
+            <form id="sentimentForm">
+                <textarea 
+                    id="textInput" 
+                    class="text-input" 
+                    placeholder="এই সিস্টেমটি শুধুমাত্র বাংলা টেক্সট সাপোর্ট করে।
+
+বেশি কার্যকর পরিণামের জন্য কমপক্ষে একটি অর্থবহ শব্দ ব্যবহার করুন।
+
+দ্রষ্টব্য: এই ফলাফল হয়তো ১০০% নির্ভুল নাও হতে পারে এবং কখনো কখনো ভুল হতে পারে।"
+                    required
+                ></textarea>
+                
+                <button type="submit" class="analyze-btn" id="analyzeBtn">
+                    <i class="fas fa-search"></i> Check
+                </button>
+            </form>
+            
+            <div class="note">
+                <strong>Note:</strong> This system only supports Bangla text.<br>
+                Must use at least 1 meaningful word for better results.<br>
+                <em>Note: The results may not be 100% accurate and may sometimes be wrong.</em>
+            </div>
+            
+            <div class="footer-info">
+                © 2025 Sentiment Analysis Bangla Text<br>
+                Developed by <strong>Saiful Islam Auny</strong><br>
+                <a href="#" style="color: #667eea;">Facebook</a> | 
+                <a href="#" style="color: #667eea;">Twitter</a> | 
+                <a href="#" style="color: #667eea;">LinkedIn</a>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>Bangla Sentiment Analysis</span>
+                </div>
+                <i class="fas fa-times close-icon"></i>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing sentiment...</p>
+            </div>
+            
+            <div class="analysis-result" id="analysisResult">
+                <div class="sentiment-circles">
+                    <div class="sentiment-circle">
+                        <div class="circle positive" id="positiveCircle">
+                            <div class="circle-inner">
+                                <span id="positivePercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-label">Positive</div>
+                    </div>
+                    
+                    <div class="sentiment-circle">
+                        <div class="circle neutral" id="neutralCircle">
+                            <div class="circle-inner">
+                                <span id="neutralPercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-label">Neutral</div>
+                    </div>
+                    
+                    <div class="sentiment-circle">
+                        <div class="circle negative" id="negativeCircle">
+                            <div class="circle-inner">
+                                <span id="negativePercent">0%</span>
+                            </div>
+                        </div>
+                        <div class="sentiment-label">Negative</div>
+                    </div>
+                </div>
+                
+                <div class="result-summary">
+                    <div class="prediction-text">
+                        Model analysis: <span id="finalPrediction">Positive</span>
+                    </div>
+                    <div class="confidence-text">
+                        Note: The results may not be 100% accurate and may sometimes be wrong.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-info">
+                © 2025 Sentiment Analysis Bangla Text<br>
+                Developed by <strong>Saiful Islam Auny</strong><br>
+                <a href="#" style="color: #667eea;">Facebook</a> | 
+                <a href="#" style="color: #667eea;">Twitter</a> | 
+                <a href="#" style="color: #667eea;">LinkedIn</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sentimentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const textInput = document.getElementById('textInput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const loading = document.getElementById('loading');
+            const analysisResult = document.getElementById('analysisResult');
+            
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('অনুগ্রহ করে কিছু টেক্সট লিখুন।');
+                return;
+            }
+            
+            // Show loading
+            loading.classList.add('show');
+            analysisResult.classList.remove('show');
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+            
+            try {
+                const response = await fetch('/api/analyze/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        text: text
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateResults(data);
+                    analysisResult.classList.add('show');
+                } else {
+                    alert('Error: ' + (data.message || 'An error occurred'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            } finally {
+                loading.classList.remove('show');
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '<i class="fas fa-search"></i> Check';
+            }
+        });
+        
+        function updateResults(data) {
+            const probabilities = data.probabilities;
+            
+            // Update percentages
+            document.getElementById('positivePercent').textContent = probabilities.positive + '%';
+            document.getElementById('neutralPercent').textContent = probabilities.neutral + '%';
+            document.getElementById('negativePercent').textContent = probabilities.negative + '%';
+            
+            // Update circular progress
+            updateCircularProgress('positiveCircle', probabilities.positive);
+            updateCircularProgress('neutralCircle', probabilities.neutral);
+            updateCircularProgress('negativeCircle', probabilities.negative);
+            
+            // Update final prediction
+            document.getElementById('finalPrediction').textContent = data.model_analysis;
+        }
+        
+        function updateCircularProgress(elementId, percentage) {
+            const element = document.getElementById(elementId);
+            element.style.setProperty('--percentage', percentage + '%');
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
