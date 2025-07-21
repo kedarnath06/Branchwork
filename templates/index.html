@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time Bangla sentiment analysis using machine learning. Analyze Bangla text for positive, negative, or neutral sentiment with confidence scores.">
+    <meta name="keywords" content="bangla sentiment analysis, বাংলা sentiment analysis, machine learning, natural language processing, text analysis">
+    <meta name="author" content="Saiful Islam Auny">
+    
+    <title>Bangla Sentiment Analysis - Real-time Text Analysis</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
+    
+    <!-- External CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Load static CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    <!-- Favicon and PWA icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+    
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="Bangla Sentiment Analysis">
+    <meta property="og:description" content="Real-time Bangla text sentiment analysis with machine learning">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Bangla Sentiment Analysis">
+    <meta name="twitter:description" content="Real-time Bangla text sentiment analysis with machine learning">
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+    
+    <!-- Main Container -->
+    <main id="main-content" class="container" role="main">
+        <!-- Input Section -->
+        <section class="input-section" aria-labelledby="input-heading">
+            <header class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-bars menu-icon" aria-hidden="true"></i>
+                    <h1 id="input-heading">Bangla Sentiment Analysis</h1>
+                </div>
+            </header>
+            
+            <div class="section-content">
+                <form id="sentimentForm" role="form" aria-label="Sentiment analysis form">
+                    <div class="form-group">
+                        <label for="textInput" class="form-label">
+                            <i class="fas fa-edit" aria-hidden="true"></i>
+                            Enter your Bangla text below:
+                        </label>
+                        <textarea 
+                            id="textInput" 
+                            class="text-input" 
+                            name="text"
+                            placeholder="এই সিস্টেমটি শুধুমাত্র বাংলা টেক্সট সাপোর্ট করে।
+
+বেশি কার্যকর পরিণামের জন্য কমপক্ষে একটি অর্থবহ শব্দ ব্যবহার করুন।
+
+দ্রষ্টব্য: এই ফলাফল হয়তো ১০০% নির্ভুল নাও হতে পারে এবং কখনো কখনো ভুল হতে পারে।"
+                            required
+                            rows="6"
+                            spellcheck="false"
+                            autocomplete="off"
+                        ></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="analyzeBtn">
+                        <i class="fas fa-search" aria-hidden="true"></i> 
+                        <span>Check</span>
+                    </button>
+                </form>
+                
+                <!-- Information Box -->
+                <div class="info-box" role="note">
+                    <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Important Information</h3>
+                    <p><strong>Language Support:</strong> This system only supports Bangla text.</p>
+                    <p><strong>Best Results:</strong> Use at least 1 meaningful word for better accuracy.</p>
+                    <p><em><strong>Disclaimer:</strong> The results may not be 100% accurate and may sometimes be wrong.</em></p>
+                </div>
+                
+                <!-- Keyboard Shortcuts Info -->
+                <details class="info-box" style="margin-top: 15px;">
+                    <summary style="cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-keyboard" aria-hidden="true"></i> Keyboard Shortcuts
+                    </summary>
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        <li><kbd>Ctrl + Enter</kbd> - Analyze text</li>
+                        <li><kbd>Escape</kbd> - Clear results</li>
+                        <li><kbd>Tab</kbd> - Navigate between elements</li>
+                    </ul>
+                </details>
+                
+                <!-- Footer Information -->
+                <footer class="footer-info">
+                    <p>© 2025 Sentiment Analysis Bangla Text</p>
+                    <p>Developed by <strong>Saiful Islam Auny</strong></p>
+                    <div>
+                        <a href="#" aria-label="Facebook Profile">
+                            <i class="fab fa-facebook" aria-hidden="true"></i> Facebook
+                        </a> | 
+                        <a href="#" aria-label="Twitter Profile">
+                            <i class="fab fa-twitter" aria-hidden="true"></i> Twitter
+                        </a> | 
+                        <a href="#" aria-label="LinkedIn Profile">
+                            <i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn
+                        </a>
+                    </div>
+                </footer>
+            </div>
+        </section>
+
+        <!-- Output Section -->
+        <section class="output-section" aria-labelledby="output-heading">
+            <header class="section-header">
+                <div class="section-title">
+                    <h2 id="output-heading">Bangla Sentiment Analysis</h2>
+                </div>
+                <button class="close-icon" aria-label="Clear results" title="Clear results">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </header>
+            
+            <div class="section-content">
+                <!-- Loading State -->
+                <div class="loading" id="loading" role="status" aria-live="polite">
+                    <div class="spinner" aria-hidden="true"></div>
+                    <p>Analyzing sentiment...</p>
+                    <small>Please wait while we process your text</small>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="analysis-result" id="analysisResult" role="region" aria-live="polite">
+                    <!-- Sentiment Visualization -->
+                    <div class="sentiment-circles" role="group" aria-label="Sentiment probability visualization">
+                        <div class="sentiment-circle">
+                            <div class="circle positive" 
+                                 id="positiveCircle" 
+                                 role="button"
+                                 tabindex="0"
+                                 aria-label="Positive sentiment percentage"
+                                 title="Click for detailed information">
+                                <div class="circle-inner">
+                                    <span id="positivePercent" aria-live="polite">0%</span>
+                                </div>
+                            </div>
+                            <div class="sentiment-label">
+                                <i class="fas fa-smile" aria-hidden="true"></i>
+                                Positive
+                            </div>
+                        </div>
+                        
+                        <div class="sentiment-circle">
+                            <div class="circle neutral" 
+                                 id="neutralCircle"
+                                 role="button"
+                                 tabindex="0"
+                                 aria-label="Neutral sentiment percentage"
+                                 title="Click for detailed information">
+                                <div class="circle-inner">
+                                    <span id="neutralPercent" aria-live="polite">0%</span>
+                                </div>
+                            </div>
+                            <div class="sentiment-label">
+                                <i class="fas fa-meh" aria-hidden="true"></i>
+                                Neutral
+                            </div>
+                        </div>
+                        
+                        <div class="sentiment-circle">
+                            <div class="circle negative" 
+                                 id="negativeCircle"
+                                 role="button"
+                                 tabindex="0"
+                                 aria-label="Negative sentiment percentage"
+                                 title="Click for detailed information">
+                                <div class="circle-inner">
+                                    <span id="negativePercent" aria-live="polite">0%</span>
+                                </div>
+                            </div>
+                            <div class="sentiment-label">
+                                <i class="fas fa-frown" aria-hidden="true"></i>
+                                Negative
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Final Result -->
+                    <div class="result-summary" role="region" aria-label="Final analysis result">
+                        <div class="prediction-text">
+                            <i class="fas fa-brain" aria-hidden="true"></i>
+                            Model analysis: <span id="finalPrediction" aria-live="polite">Positive</span>
+                        </div>
+                        <div class="confidence-text">
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            Note: The results may not be 100% accurate and may sometimes be wrong.
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Analysis Info -->
+                    <div class="info-box" style="margin-top: 20px;">
+                        <h4><i class="fas fa-chart-bar" aria-hidden="true"></i> How to Read Results</h4>
+                        <ul style="margin-top: 10px; padding-left: 20px; font-size: 13px;">
+                            <li><strong>Circles:</strong> Show probability percentage for each sentiment</li>
+                            <li><strong>Colors:</strong> Green (Positive), Yellow (Neutral), Red (Negative)</li>
+                            <li><strong>Final Result:</strong> Based on the highest probability score</li>
+                            <li><strong>Confidence:</strong> Higher percentages indicate more certainty</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Footer Information -->
+                <footer class="footer-info">
+                    <p>© 2025 Sentiment Analysis Bangla Text</p>
+                    <p>Developed by <strong>Saiful Islam Auny</strong></p>
+                    <div>
+                        <a href="#" aria-label="Facebook Profile">
+                            <i class="fab fa-facebook" aria-hidden="true"></i> Facebook
+                        </a> | 
+                        <a href="#" aria-label="Twitter Profile">
+                            <i class="fab fa-twitter" aria-hidden="true"></i> Twitter
+                        </a> | 
+                        <a href="#" aria-label="LinkedIn Profile">
+                            <i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn
+                        </a>
+                    </div>
+                </footer>
+            </div>
+        </section>
+    </main>
+    
+    <!-- API Status Indicator -->
+    <div id="apiStatus" class="api-status" role="status" aria-live="polite">
+        <i class="fas fa-circle" aria-hidden="true"></i>
+        <span>API Ready</span>
+    </div>
+    
+    <!-- Load JavaScript -->
+    <script src="{% static 'js/main.js' %}" defer></script>
+    
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Bangla Sentiment Analysis",
+        "description": "Real-time sentiment analysis for Bangla text using machine learning",
+        "url": "{{ request.build_absolute_uri }}",
+        "applicationCategory": "Natural Language Processing",
+        "operatingSystem": "Web Browser",
+        "author": {
+            "@type": "Person",
+            "name": "Saiful Islam Auny"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    
+    <!-- Additional CSS for API status -->
+    <style>
+        .api-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .api-status .fa-circle {
+            color: #10b981;
+            font-size: 8px;
+        }
+        
+        kbd {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+        
+        details summary {
+            outline: none;
+        }
+        
+        details[open] summary {
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .api-status {
+                bottom: 10px;
+                right: 10px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</body>
+</html>
